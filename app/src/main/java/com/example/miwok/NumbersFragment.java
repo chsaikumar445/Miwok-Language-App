@@ -1,21 +1,30 @@
 package com.example.miwok;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
 import java.util.ArrayList;
 
-public class NumbersActivity extends AppCompatActivity {
-
-   private MediaPlayer mediaPlayer ;
+/**
+ * A simple {@link Fragment} subclass.
+ * Use the {@link NumbersFragment# newInstance} factory method to
+ * create an instance of this fragment.
+ */
+public class NumbersFragment extends Fragment {
+    private MediaPlayer mediaPlayer ;
 
     private AudioManager mAudioManager;
 
@@ -31,8 +40,8 @@ public class NumbersActivity extends AppCompatActivity {
 
                 // Pause playback and reset player to the start of the file. That way, we can
                 // play the word from the beginning when we resume playback.
-                 mediaPlayer.pause();
-                 mediaPlayer.seekTo(0);
+                mediaPlayer.pause();
+                mediaPlayer.seekTo(0);
 
             } else if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
                 // The AUDIOFOCUS_GAIN case means we have regained focus and can resume playback.
@@ -55,12 +64,11 @@ public class NumbersActivity extends AppCompatActivity {
 
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.words_list);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,  Bundle savedInstanceState) {
 
-        // Create and setup the {@link AudioManager} to request audio focus
-        mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        View rootView = inflater.inflate(R.layout.words_list, container, false);
+
+        mAudioManager = (AudioManager) getActivity().getSystemService(Context.AUDIO_SERVICE);
 
         // creates a arrayList objects
         final ArrayList<word> wordsobj =new ArrayList<>();
@@ -75,9 +83,9 @@ public class NumbersActivity extends AppCompatActivity {
         wordsobj.add(new word("nine", "wo’e",R.drawable.number_nine, R.raw.number_nine));
         wordsobj.add(new word("ten", "na’aacha",R.drawable.number_ten, R.raw.number_ten));
 
-        WordAdapter wordsadapter = new WordAdapter(this,wordsobj,R.color.category_numbers);
+        WordAdapter wordsadapter = new WordAdapter(getActivity(),wordsobj,R.color.category_numbers);
 
-        ListView listView = (ListView) findViewById(R.id.list);
+        ListView listView = (ListView) rootView.findViewById(R.id.list);
 
         listView.setAdapter(wordsadapter);
 
@@ -96,7 +104,7 @@ public class NumbersActivity extends AppCompatActivity {
 
                     // Create and setup the {@link MediaPlayer} for the audio resource associated
                     // with the current word
-                    mediaPlayer = MediaPlayer.create(NumbersActivity.this, audioResourceId);
+                    mediaPlayer = MediaPlayer.create(getActivity(), audioResourceId);
 
                     // Start the audio file
                     mediaPlayer.start();
@@ -107,10 +115,18 @@ public class NumbersActivity extends AppCompatActivity {
                 }
             }
 
-        });
+        }
+        );
+        return rootView;
+}
 
-
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.v("phrasesactivity","onStop is called");
+        releaseMediaPlayer();
     }
+
 
     private void releaseMediaPlayer() {
         // If the media player is not null, then it may be currently playing a sound.
@@ -130,10 +146,5 @@ public class NumbersActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        Log.v("phrasesactivity","onStop is called");
-        releaseMediaPlayer();
-    }
+
 }

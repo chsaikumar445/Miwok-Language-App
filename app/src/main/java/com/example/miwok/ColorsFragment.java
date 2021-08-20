@@ -1,21 +1,28 @@
 package com.example.miwok;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+
+import androidx.fragment.app.Fragment;
+
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
 import java.util.ArrayList;
 
-public class ColorsActivity extends AppCompatActivity {
-
-    private MediaPlayer mediaPlayer;
+/**
+ * A simple {@link Fragment} subclass.
+ * Use the {@link ColorsFragment# newInstance} factory method to
+ * create an instance of this fragment.
+ */
+public class ColorsFragment extends Fragment {
+    private MediaPlayer mediaPlayer ;
 
     private AudioManager mAudioManager;
 
@@ -54,14 +61,12 @@ public class ColorsActivity extends AppCompatActivity {
     };
 
 
-
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.words_list);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,  Bundle savedInstanceState) {
 
-        // Create and setup the {@link AudioManager} to request audio focus
-        mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        View rootView = inflater.inflate(R.layout.words_list, container, false);
+
+        mAudioManager = (AudioManager) getActivity().getSystemService(Context.AUDIO_SERVICE);
 
         // creates a arrayList objects
         ArrayList<word> words =new ArrayList<>();
@@ -74,9 +79,9 @@ public class ColorsActivity extends AppCompatActivity {
         words.add(new word("black", "kululli", R.drawable.color_black, R.raw.color_black));
         words.add(new word("white", "kelelli", R.drawable.color_white, R.raw.color_white));
 
-        WordAdapter wordsadapter = new WordAdapter(this,words, R.color.category_colors);
+        WordAdapter wordsadapter = new WordAdapter(getActivity(),words, R.color.category_colors);
 
-        ListView listView = (ListView) findViewById(R.id.list);
+        ListView listView = (ListView) rootView.findViewById(R.id.list);
 
         listView.setAdapter(wordsadapter);
 
@@ -94,7 +99,7 @@ public class ColorsActivity extends AppCompatActivity {
 
                     // Create and setup the {@link MediaPlayer} for the audio resource associated
                     // with the current word
-                    mediaPlayer = MediaPlayer.create(ColorsActivity.this, audioResourceId);
+                    mediaPlayer = MediaPlayer.create(getActivity(), audioResourceId);
 
                     // Start the audio file
                     mediaPlayer.start();
@@ -108,9 +113,17 @@ public class ColorsActivity extends AppCompatActivity {
 
         });
 
-
-
+        return rootView;
     }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.v("phrasesactivity","onStop is called");
+        releaseMediaPlayer();
+    }
+
+
     private void releaseMediaPlayer() {
         // If the media player is not null, then it may be currently playing a sound.
         if (mediaPlayer != null) {
@@ -129,10 +142,6 @@ public class ColorsActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        Log.v("phrasesactivity","onStop is called");
-        releaseMediaPlayer();
-    }
+
+
 }

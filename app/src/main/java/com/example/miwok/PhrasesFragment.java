@@ -1,21 +1,28 @@
 package com.example.miwok;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+
+import androidx.fragment.app.Fragment;
+
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
 import java.util.ArrayList;
 
-public class PhrasesActivity extends AppCompatActivity {
-
-    private MediaPlayer mediaPlayer;
+/**
+ * A simple {@link Fragment} subclass.
+ * Use the {@link PhrasesFragment# newInstance} factory method to
+ * create an instance of this fragment.
+ */
+public class PhrasesFragment extends Fragment {
+    private MediaPlayer mediaPlayer ;
 
     private AudioManager mAudioManager;
 
@@ -55,11 +62,11 @@ public class PhrasesActivity extends AppCompatActivity {
 
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.words_list);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,  Bundle savedInstanceState) {
 
-        mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        View rootView = inflater.inflate(R.layout.words_list, container, false);
+
+        mAudioManager = (AudioManager) getActivity().getSystemService(Context.AUDIO_SERVICE);
 
 
         // creates a arrayList objects
@@ -75,9 +82,9 @@ public class PhrasesActivity extends AppCompatActivity {
         words.add(new word("Let’s go.", "yoowutis", R.raw.phrase_lets_go));
         words.add(new word("Come here.", "әnni'nem", R.raw.phrase_come_here));
 
-        WordAdapter wordsadapter = new WordAdapter(this,words, R.color.category_phrases);
+        WordAdapter wordsadapter = new WordAdapter(getActivity(),words, R.color.category_phrases);
 
-        ListView listView = (ListView) findViewById(R.id.list);
+        ListView listView = (ListView) rootView.findViewById(R.id.list);
 
         listView.setAdapter(wordsadapter);
 
@@ -95,7 +102,7 @@ public class PhrasesActivity extends AppCompatActivity {
 
                     // Create and setup the {@link MediaPlayer} for the audio resource associated
                     // with the current word
-                    mediaPlayer = MediaPlayer.create(PhrasesActivity.this, audioResourceId);
+                    mediaPlayer = MediaPlayer.create(getActivity(), audioResourceId);
 
                     // Start the audio file
                     mediaPlayer.start();
@@ -106,9 +113,16 @@ public class PhrasesActivity extends AppCompatActivity {
                 }
             }
         });
-
-
+        return rootView;
     }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.v("phrasesactivity","onStop is called");
+        releaseMediaPlayer();
+    }
+
 
     private void releaseMediaPlayer() {
         // If the media player is not null, then it may be currently playing a sound.
@@ -128,10 +142,6 @@ public class PhrasesActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        Log.v("phrasesactivity","onStop is called");
-        releaseMediaPlayer();
-    }
+
+
 }
